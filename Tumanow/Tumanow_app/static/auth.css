@@ -27,6 +27,10 @@
     gap: 2vh;
 }
 
+.auth-card > form > label{
+    color:  rgba(0, 0, 0, 0.5);
+}
+
 .auth-card > form > input{
     height: 3.5vh;
     border-radius: 5px;
@@ -39,6 +43,24 @@
     background: white;
     outline: none;
 }
+
+.auth-card > form > input[name="profile_pic"]{
+    display: none;
+}
+
+.auth-card > form > i{
+    align-self: center;
+    padding: 40px;
+    border-radius: 50%;
+    background-color: gray;
+    font-size: 1.2rem;
+    transition: 0.3s;
+}
+
+.auth-card > form > i:hover{
+    cursor: pointer;
+    background-color: rgb(88, 88, 88);
+}   
 
 /* Checkout Button */
 button {

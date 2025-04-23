@@ -6,7 +6,7 @@ main {
 
 /* Hero Section */
 .hero {
-    background: rgba(255, 255, 255, 0.4) url('https://imgs.search.brave.com/a4wbkqDQydfv8J2f_tbj-eHYNT-hPdU2zRNH9VEkj54/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pLnBp/bmltZy5jb20vb3Jp/Z2luYWxzLzZjLzlh/LzVkLzZjOWE1ZGMx/MDFkMmZhNzY0ZTRk/YWRiNGE0ODVkOWEy/LmpwZw') no-repeat center;
+    background: rgba(255, 255, 255, 0.4) url('/media/hero_image.webp') no-repeat center;
     background-size: cover;
     color: black;
     padding: 120px 20px;

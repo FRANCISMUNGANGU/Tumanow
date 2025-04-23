@@ -9,6 +9,7 @@
 
     {% block static_inclusions %}
     <link rel="stylesheet" href="{% static 'auth.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     {% endblock %}
 
 </head>
@@ -16,9 +17,13 @@
     <div class="auth-card">
         <img src="/media/logo.png" alt="TumaNow Logo" class="auth-logo">
         <h2>Create an Account</h2>
-        <form action="/api/register/" method="POST">
+        <form action="{% url 'register' %}" method="POST">
+            <label for="profile_pic">Profile Picture: </label>
+            <i class="fa-solid fa-plus"></i>
             <input type="text" name="name" placeholder="Full Name" required>
+            <input type="text" name="Username" placeholder="Enter a unique username" required>
             <input type="email" name="email" placeholder="Email" required>
+            <input type="number" name="phone_number" placeholder="+2547xxxxxxxx" required>
             <input type="password" name="password" placeholder="Password" required>
             <input type="password" name="confirm-password" placeholder="Confirm Password" required>
             <button type="submit">Register</button>

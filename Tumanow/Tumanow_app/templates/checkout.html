@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+<title>Checkout</title>
+{% endblock %}
+
+{% block static_inclusions %}
+<link rel="stylesheet" href="{% static 'checkout.css' %}">
+{% endblock %}
+
+
+{% block main %}
+<main>
+    <div class="checkout-container">
+        <h2>Checkout for: {{ food.name }}</h2>
+        <form method="POST" action="{% url 'process_checkout' %}">
+            {% csrf_token %}
+            <img src="{{ food.image.url }}" />
+            <label for="name">Name:</label>
+            <input type="text" name="name" required>
+            <label for="phone">Phone Number:</label>
+            <input type="tel" name="phone" placeholder="07xxxxxxxx" required>
+            <label for="price">Price: Ksh {{ food.price }}</label>
+            <button type="submit">Pay Now</button>
+        </form>
+    </div>
+</main>
+{% endblock %}

@@ -24,6 +24,7 @@
                 <h3>{{ restaurant.name }}</h3>
                 <p>Email: {{ restaurant.email }}</p>
                 <p>Phone: {{ restaurant.phone_number }}</p>
+                <p>Category: {{ restaurant.get_category_display }}</p>
             </a>
             {% endfor %}
            

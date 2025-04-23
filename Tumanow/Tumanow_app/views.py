@@ -6,6 +6,7 @@ def home(request):
     return render(request, "index.html")
 
 def register(request):
+
     return render(request, 'register.html')
 
 def login(request):
@@ -15,8 +16,9 @@ def menu(request):
     products = Product.objects.all()
     return render(request, 'menu.html', {'products': products})
 
-def checkout(request):
-    return render(request, 'checkout.html')
+def checkout(request, id):
+    food = get_object_or_404(Product, pk=id)
+    return render(request, 'checkout.html', {'food':food})
 
 def restaurants(request):
     restaurants = Restaurant.objects.all()
@@ -33,3 +35,6 @@ def restaurant(request, id):
         'menus': menus,
     }
     return render(request, 'restaurant.html', context)
+
+def process_checkout(request):
+    pass

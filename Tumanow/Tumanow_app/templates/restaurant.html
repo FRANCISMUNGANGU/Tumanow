@@ -18,12 +18,11 @@
             <div class="text">
                 <h2>Welcome to {{ restaurant.name }}</h2>
             </div>
-            <h1>Our Menu</h1>
         </div>
         
         <div class="vendors-grid">
             {% for menu in menus %}
-             <a href="{% url 'checkout' %}" class="vendor-card">
+             <a href="{% url 'checkout' id=menu.id %}" class="vendor-card">
                 <img src="{{ menu.image.url }}" alt="Wajeff">
                 <h3>{{ menu.name }}</h3>
                 <p>Vendor: {{ menu.vendor }}</p>

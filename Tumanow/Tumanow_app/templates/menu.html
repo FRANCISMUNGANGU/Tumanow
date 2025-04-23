@@ -18,7 +18,7 @@
         
         <div class="vendors-grid">
             {% for product in products %}
-             <a href="{% url 'checkout' %}" class="vendor-card">
+             <a href="{% url 'checkout' id=product.id %}" class="vendor-card">
                 <img src="{{ product.image.url }}" alt="Wajeff">
                 <h3>{{ product.name }}</h3>
                 <p>Vendor: {{ product.vendor }}</p>
