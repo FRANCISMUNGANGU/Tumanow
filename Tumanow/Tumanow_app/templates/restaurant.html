@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+<title>{{ restaurant.name }}</title>
+{% endblock %}
+
+{% block static_inclusions %}
+<link rel="stylesheet" href="{% static 'menu.css' %}" />
+{% endblock %}
+
+{% block main %}
+<main>
+    <section class="vendors-container">
+        <div class="intro">
+            <img src="{{restaurant.image.url}}" />
+            <div class="text">
+                <h2>Welcome to {{ restaurant.name }}</h2>
+            </div>
+            <h1>Our Menu</h1>
+        </div>
+        
+        <div class="vendors-grid">
+            {% for menu in menus %}
+             <a href="{% url 'checkout' %}" class="vendor-card">
+                <img src="{{ menu.image.url }}" alt="Wajeff">
+                <h3>{{ menu.name }}</h3>
+                <p>Vendor: {{ menu.vendor }}</p>
+                <p>Ksh: {{ menu.price }}</p>
+            </a>
+            {% endfor %}
+           
+        </div>
+    </section>
+</main>
+{% endblock %}

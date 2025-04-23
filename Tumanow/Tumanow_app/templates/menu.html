@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+<title>Vendors - TumaNow</title>
+{% endblock %}
+
+{% block static_inclusions %}
+<link rel="stylesheet" href="{% static 'menu.css' %}" />
+{% endblock %}
+
+{% block main %}
+<main>
+    <section class="vendors-container">
+        <h2>🍽️ Order from the Best Hotels</h2>
+        <p>Select a vendor to explore their menu.</p>
+        
+        <div class="vendors-grid">
+            {% for product in products %}
+             <a href="{% url 'checkout' %}" class="vendor-card">
+                <img src="{{ product.image.url }}" alt="Wajeff">
+                <h3>{{ product.name }}</h3>
+                <p>Vendor: {{ product.vendor }}</p>
+                <p>Ksh: {{ product.price }}</p>
+            </a>
+            {% endfor %}
+           
+        </div>
+    </section>
+</main>
+{% endblock %}

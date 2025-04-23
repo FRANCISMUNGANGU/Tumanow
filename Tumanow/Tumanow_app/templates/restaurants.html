@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+<title>Restaurants</title>
+{% endblock %}
+
+{% block static_inclusions %}
+<link rel="stylesheet" href="{% static 'menu.css' %}" />
+{% endblock %}
+
+{% block main %}
+<main>
+    
+    <section class="vendors-container">
+        <h2>🍽️ Order from the Best Hotels</h2>
+        <p>Select a restaurants to explore their menu.</p>
+        
+        <div class="vendors-grid">
+            {% for restaurant in restaurants %}
+             <a href="{% url 'restaurant' id=restaurant.id %}" class="vendor-card">
+                <img src="{{ restaurant.image.url }}" alt="Wajeff">
+                <h3>{{ restaurant.name }}</h3>
+                <p>Email: {{ restaurant.email }}</p>
+                <p>Phone: {{ restaurant.phone_number }}</p>
+            </a>
+            {% endfor %}
+           
+        </div>
+    </section>
+</main>
+{% endblock %}

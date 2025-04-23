@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Montserrat:wght@400;700&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+
+/* General Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    background-color: #f8f8f8;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    height: 13vh;
+    width: 100%;
+    align-items: center;
+    padding: 0 3vh;
+    z-index: 10;
+
+}
+
+header > .logo{
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 20%;
+}
+
+/* header > .logo > .logo-text{
+
+} */
+
+header > .logo > img{
+    height: 80%;
+}
+
+header > form{
+    width: 60%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+header > form > input{
+    width: 100%;
+    height: 30%;
+    border-radius: 6px;
+    outline: none;
+    border: 1px solid rgba(128, 128, 128, 0.281);
+    padding: 2vh;
+    transition: 0.3s;
+}
+
+header > form > input:focus{
+    border: none;
+    border:2px solid #ffdb4d;
+}
+
+main{
+    min-height: 74vh;
+}
+
+
+/* Navigation */
+header > nav{
+    height: 100%;
+    width: 10%;
+    display: flex;
+    align-items: center;
+    gap: 3vh;
+}
+
+header > nav > a {
+    display: flex;
+    border: 1px solid gray;
+    border-radius: 4px;
+    padding: 10px;
+    color: black;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: 0.3s ease-in-out;
+}
+
+header > nav a:hover {
+    color: #ffcc00;
+    transform: scale(1.05);
+    cursor: pointer;
+}
+
+.header-2{
+    height: 8vh;
+    justify-content: center;
+}
+
+.header-2 > nav{
+    margin-left: -25vh;
+}
+
+.header-2 > nav > a{
+    padding: 1vh 3vh;
+}
+
+/* Footer */
+footer {
+    background: black;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 14px;
+    margin-top: 40px;
+}
+
+/* Mobile-Friendly Adjustments */
+@media (max-width: 768px) {
+    .checkout-container {
+        width: 90%;
+        padding: 20px;
+    }
+
+    .feature {
+        width: 90%;
+    }
+
+    .hero h2 {
+        font-size: 36px;
+    }
+
+    input, select {
+        font-size: 14px;
+        padding: 12px;
+    }
+
+    button {
+        padding: 12px;
+    }
+}

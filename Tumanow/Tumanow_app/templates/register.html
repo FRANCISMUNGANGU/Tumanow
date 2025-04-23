@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+
+    {% block title %}
+    <title>Register - TumaNow</title>
+    {% endblock %}
+
+    {% block static_inclusions %}
+    <link rel="stylesheet" href="{% static 'auth.css' %}">
+    {% endblock %}
+
+</head>
+<body>
+    <div class="auth-card">
+        <img src="/media/logo.png" alt="TumaNow Logo" class="auth-logo">
+        <h2>Create an Account</h2>
+        <form action="/api/register/" method="POST">
+            <input type="text" name="name" placeholder="Full Name" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <input type="password" name="confirm-password" placeholder="Confirm Password" required>
+            <button type="submit">Register</button>
+        </form>
+        <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+        <a href="{% url 'home' %}">Go home</a>
+    </div>
+</body>
+</html>

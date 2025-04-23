@@ -1,0 +1,107 @@
+main {
+    width: 100%;
+    height: 100%;
+    background-color: transparent;    
+}
+
+/* Hero Section */
+.hero {
+    background: rgba(255, 255, 255, 0.4) url('https://imgs.search.brave.com/a4wbkqDQydfv8J2f_tbj-eHYNT-hPdU2zRNH9VEkj54/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pLnBp/bmltZy5jb20vb3Jp/Z2luYWxzLzZjLzlh/LzVkLzZjOWE1ZGMx/MDFkMmZhNzY0ZTRk/YWRiNGE0ODVkOWEy/LmpwZw') no-repeat center;
+    background-size: cover;
+    color: black;
+    padding: 120px 20px;
+    border-bottom-left-radius: 50px;
+    border-bottom-right-radius: 50px;
+    width: 100%;
+    color: rgb(255, 255, 255);
+}
+
+.hero > .hero-text{
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+    align-items: center;
+}
+
+.hero > .hero-text > h2 {
+    font-size: 46px;
+    font-weight: bold;
+    font-family: 'Montserrat', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.hero > .hero-text > p {
+    font-size: 22px;
+    font-weight: 400;
+    margin-top: 10px;
+}
+
+.hero > .hero-text > a {
+    width: 10%;
+    padding: 1vh 2vh;
+    border: 1px solid gray;
+    border-radius: 30px;
+    text-decoration: none;
+    color: white;
+    transition: 0.3s;
+    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); */
+}
+
+.hero > .hero-text > a:hover {
+    background-color: white;
+    transform: scale(1.05);
+    color: #000;
+}
+
+
+
+/* Features Section */
+.features {
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    gap: 2vh;
+    flex-wrap: wrap;
+    padding: 4vh;
+    justify-content: space-around;
+    width: 100%;
+}
+
+.feature {
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+    background-color: white;
+    color: black;
+    border-radius: 20px;
+    width: 30%;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+    padding: 2vh;
+}
+
+.feature:hover {
+    transform: scale(1.05);
+}
+
+.feature > img{
+    width: 100%;
+    height: 70%;
+}
+
+.feature > p{
+    font-size: 1.2rem;
+}
+
+/* Checkout Page */
+.checkout-container {
+    max-width: 500px;
+    margin: 40px auto;
+    text-align: center;
+    padding: 30px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.15);
+}

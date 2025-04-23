@@ -1,0 +1,83 @@
+.auth-card{
+    margin: 10% auto;
+    width: 30%;
+    border-radius: 2vh;
+    height: auto;
+    box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.438);
+    display: flex;
+    flex-direction: column;
+    gap: 3vh;
+    align-items: center;
+    padding: 4vh;
+}
+
+.auth-card > img{
+    width: 20%;
+    height: auto;
+}
+
+.auth-card a{
+    text-decoration: none;
+}
+
+.auth-card > form{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 2vh;
+}
+
+.auth-card > form > input{
+    height: 3.5vh;
+    border-radius: 5px;
+    border: 1px solid rgba(128, 128, 128, 0.164);
+    padding: 0 1vh;
+}
+
+.auth-card > form > input:focus{
+    border-color: #ffcc00;
+    background: white;
+    outline: none;
+}
+
+/* Checkout Button */
+button {
+    background: #ffcc00;
+    color: black;
+    padding: 14px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    text-transform: uppercase;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+button:hover {
+    background: #ffdb4d;
+    transform: scale(1.05);
+}
+
+/* Floating Checkout Button */
+.floating-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 20px;
+    background: #ffcc00;
+    color: black;
+    padding: 14px 20px;
+    border-radius: 50px;
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+}
+
+.floating-btn:hover {
+    background: #ffdb4d;
+    transform: scale(1.1);
+}
