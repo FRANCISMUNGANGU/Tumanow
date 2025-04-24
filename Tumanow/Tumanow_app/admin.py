@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Vendor, Product, Restaurant
+from .models import Vendor, Product, Restaurant, Customer
 from django.utils.html import format_html
 # Register your models here.
 
@@ -45,3 +45,5 @@ class AdminProduct(admin.ModelAdmin):
 
     image_display.allow_tags = True
     image_display.short_description = "Image" 
+
+admin.site.register(Customer)
