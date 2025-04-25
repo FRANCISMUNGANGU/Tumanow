@@ -99,6 +99,27 @@ header > nav a:hover {
     cursor: pointer;
 }
 
+header > nav > .profile-menu{
+    display: flex;
+    height: 100%;
+    padding: 1vh;
+}
+
+header > nav > .profile-menu > a {
+    text-decoration: none;
+    color: black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+header > nav > .profile-menu > a >  img{
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
 .header-2{
     height: 8vh;
     justify-content: center;
@@ -111,6 +132,7 @@ header > nav a:hover {
 .header-2 > nav > a{
     padding: 1vh 3vh;
 }
+
 
 /* Footer */
 footer {

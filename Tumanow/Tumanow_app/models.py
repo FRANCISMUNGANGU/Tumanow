@@ -56,3 +56,6 @@ class Customer(models.Model):
     email = models.EmailField()
     profile_pic = models.ImageField(upload_to='users')
     phone_number = PhoneNumberField()
+
+    def __str__(self):
+        return self.username

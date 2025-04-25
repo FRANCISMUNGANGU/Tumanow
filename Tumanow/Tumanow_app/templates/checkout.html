@@ -18,8 +18,7 @@
         <form method="POST" action="{% url 'process_checkout' %}">
             {% csrf_token %}
             <img src="{{ food.image.url }}" />
-            <label for="name">Name:</label>
-            <input type="text" name="name" required>
+            <label for="name">Name: {{ request.user.customer.name }}</label>
             <label for="phone">Phone Number:</label>
             <input type="tel" name="phone" placeholder="07xxxxxxxx" required>
             <label for="price">Price: Ksh {{ food.price }}</label>
