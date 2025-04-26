@@ -23,8 +23,16 @@
             <input type="search" placeholder="Search">
         </form>
         <nav>
+            {% if request.user.is_authenticated %}
+            <div class="profile-menu">
+                <a href="{% url 'profile' %}">
+                    <img src="{{ request.user.customer.profile_pic.url }}" alt="Profile" class="profile-icon">
+                </a>
+            </div>
+            {% else %}
             <a href="{% url 'login' %}" class="login-btn">Login</a>
             <a href="{% url 'register' %}">Register</a>
+            {% endif %}
         </nav>
     </header>
     <header class="header-2">

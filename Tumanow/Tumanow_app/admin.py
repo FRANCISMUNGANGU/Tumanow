@@ -46,4 +46,14 @@ class AdminProduct(admin.ModelAdmin):
     image_display.allow_tags = True
     image_display.short_description = "Image" 
 
-admin.site.register(Customer)
+@admin.register(Customer)
+class AdminCustomer(admin.ModelAdmin):
+    list_display = ['username', 'image_display', 'name', 'email']
+    def image_display(self, obj):
+        if obj.profile_pic: 
+            return format_html('<img src="{}" width="120" height="120" style="object-fit: cover;"/>', obj.profile_pic.url)
+        return "No Image"
+    
+
+    image_display.allow_tags = True
+    image_display.short_description = "Profile Picture" 
