@@ -68,21 +68,30 @@ def process_checkout(request, id):
     food = get_object_or_404(Product, pk=id)
     if request.method == 'POST':
         amount = food.price
-        phoneNumber = request.POST.get('phone')
-        if not phoneNumber or not int(phoneNumber):
+        phone_number = request.POST.get('phone')
+
+        if not phone_number or not phone_number.isdigit():
             return HttpResponse('invalid phone number')
-        if not amount or not int(amount):
-            return HttpResponse('invalid price')
+
         cl = MpesaClient()
-        phone_number = int(phoneNumber)
-        amount = int(amount)
         account_reference = 'Tumanow'
         transaction_desc = 'paying for food'
-        callback_url = 'https://api.darajambili.com/express-payment'
+        callback_url = 'https://127.0.0.1:8000/mpesa-callback/'  # You need to create this endpoint!
+
+        # Initiate STK Push
         response = cl.stk_push(str(phone_number), amount, account_reference, transaction_desc, callback_url)
-        return HttpResponse(response)
+
+        # You need to save some transaction data like CheckoutRequestID somewhere!
+        checkout_request_id = response.json()
+        print(checkout_request_id) # depends how your MpesaClient returns it
+
+        # Store it in session or database to track later
+        request.session['checkout_request_id'] = checkout_request_id
+
+        return render(request, 'processing.html', {'food': food})
     else:
-        return render(request, 'checkout.html', {'food':food})
+        return render(request, 'checkout.html', {'food': food})
+
     
 def check_payment_status(request):
     checkout_request_id = request.session.get('checkout_request_id')
