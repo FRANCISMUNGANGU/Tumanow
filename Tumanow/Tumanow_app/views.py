@@ -6,7 +6,7 @@ from django.contrib.auth import login, authenticate
 from .utils import clean_input, validate_signup_data
 from django_daraja.mpesa.core import MpesaClient
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 
 # Create your views here.
@@ -120,3 +120,18 @@ def process_checkout(request, id):
         return HttpResponse(response)
     else:
         return render(request, 'checkout.html', {'food':food})
+    
+def check_payment_status(request):
+    checkout_request_id = request.session.get('checkout_request_id')
+
+    if not checkout_request_id:
+        return JsonResponse({'status': 'error', 'message': 'No transaction found'})
+
+    cl = MpesaClient()
+    result = cl.query_transaction_status(checkout_request_id)
+
+    # You'll need to adjust according to M-Pesa response format
+    if result.get('ResultCode') == 0:
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'pending'})

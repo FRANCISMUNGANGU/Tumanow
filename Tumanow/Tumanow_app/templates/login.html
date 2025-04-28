@@ -13,6 +13,16 @@
 
 </head>
 <main>
+
+    {% if messages %}
+    <div id="message-container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+    {{ message }}
+    </div>
+    {% endfor %}
+    </div>
+{% endif %}
     <div class="auth-card">
         <img src="/media/logo.png" alt="TumaNow Logo" class="auth-logo">
         <h1>Login</h1>
