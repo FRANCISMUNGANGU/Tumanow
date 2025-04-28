@@ -1,13 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Restaurant, Product, Customer
-from django.contrib.auth.models import User
-from django.contrib import messages
-from django.contrib.auth import login, authenticate
-from .utils import clean_input, validate_signup_data
-from django_daraja.mpesa.core import MpesaClient
+from django.contrib.auth import authenticate, login as auth_login
+from .models import Restaurant, Product
+from .forms import CustomUserCreationForm
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse
-
+from django.http import HttpResponse, JsonResponse  # Import HttpResponse
+from django_daraja.mpesa.core import MpesaClient  # Import MpesaClient
 
 # Create your views here.
 def home(request):
@@ -21,60 +18,26 @@ def profile(request):
 
 def register(request):
     if request.method == 'POST':
-        data = {
-            'name': clean_input(request.POST.get('name')),
-            'username': clean_input(request.POST.get('username')),
-            'email': clean_input(request.POST.get('email')).lower(),
-            'phone_number': clean_input(request.POST.get('phone_number')),
-            'password': request.POST.get('password', ''),
-            'confirm_password': request.POST.get('confirm-password', ''),
-            'profile_pic': request.FILES.get('profile_pic')
-        }
-
-        is_valid, error_msg = validate_signup_data(data)
-        if not is_valid:
-            messages.error(request, error_msg)
-            return redirect('register')
-
-        if User.objects.filter(username=data['username']).exists():
-            messages.error(request, "Username already taken.")
-            return redirect('register')
-
-        if User.objects.filter(email=data['email']).exists():
-            messages.error(request, "Email already in use.")
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
             return redirect('login')
-
-        user = User.objects.create_user(username=data['username'], email=data['email'], password=data['password'])
-
-        Customer.objects.create(
-            customer=user,
-            name=data['name'],
-            username=data['username'],
-            email=data['email'],
-            phone_number=data['phone_number'],
-            profile_pic=data['profile_pic']
-        )
-
-        login(request, user)
-        messages.success(request, "Account created successfully!")
-        return redirect('home')
-
-    return render(request, 'register.html')
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'register.html', {'form': form})
 
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-
+        username = request.POST['username']
+        password = request.POST['password']
         user = authenticate(request, username=username, password=password)
-        if user:
-            login(request, user)
+        if user is not None:
+            auth_login(request, user)
             return redirect('home')
         else:
-            messages.error(request, "Invalid username or password")
-            return redirect('login')
-
-    return render(request, 'login.html')
+            return render(request, 'login.html', {'error': 'Invalid username or password'})
+    else:
+        return render(request, 'login.html')
 
 def menu(request):
     products = Product.objects.all()

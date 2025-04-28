@@ -73,3 +73,12 @@ class AdminProduct(admin.ModelAdmin):
             except Vendor.DoesNotExist:
                 pass
         super().save_model(request, obj, form, change)
+    def image_display(self, obj):
+        if obj.image: 
+            return format_html('<img src="{}" width="120" height="120" style="object-fit: cover;"/>', obj.image.url)
+        return "No Image"
+    
+
+    image_display.allow_tags = True
+    image_display.short_description = "Image" 
+

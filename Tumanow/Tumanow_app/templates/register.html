@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     {% load static %}
 
     {% block title %}
@@ -12,36 +12,35 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     {% endblock %}
 
-</head>
-<body>
-    {% if messages %}
-        <div id="message-container">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">
-        {{ message }}
-        </div>
-        {% endfor %}
-        </div>
-    {% endif %}
+  </head>
+  <body>
     <div class="auth-card">
         <img src="/media/logo.png" alt="TumaNow Logo" class="auth-logo">
-        <h2>Create an Account</h2>
-        <form action="{% url 'register' %}" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <label for="profile_pic">Profile Picture: </label>
-            <i class="fa-solid fa-plus" id="profile_upload"></i>
-            <input type="file" name="profile_pic" id="profile_input" required>
-            <input type="text" name="name" placeholder="Full Name" required>
-            <input type="text" name="username" placeholder="Enter a unique username" required>
-            <input type="email" name="email" placeholder="Email" required>
-            <input type="number" name="phone_number" placeholder="+2547xxxxxxxx" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <input type="password" name="confirm-password" placeholder="Confirm Password" required>
-            <button type="submit">Register</button>
-        </form>
-        <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
-        <a href="{% url 'home' %}">Go home</a>
+      <h2>Create an Account</h2>
+      {% if form.errors %}
+      <ul>
+        {% for field in form %} {% for error in field.errors %}
+        <li>{{ field.label }}: {{ error }}</li>
+        {% endfor %} {% endfor %} {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <form action="{% url 'register' %}" method="POST">
+        {% csrf_token %}
+        <label for="profile_pic">Profile Picture: </label>
+        <i class="fa-solid fa-plus"></i>
+        <input type="text" name="name" placeholder="Full Name" />
+        <input type="text" name="username" placeholder="Enter a unique username" required/>
+        <input type="email" name="email" placeholder="Email" />
+        <input type="number" name="phone_number" placeholder="+2547xxxxxxxx" />
+        <input type="password" name="password1" placeholder="Password" required />
+        <input type="password" name="password2" placeholder="Confirm Password" required />
+        <button type="submit">Register</button>
+      </form>
+      <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+      <a href="{% url 'home' %}">Go home</a>
     </div>
-</body>
-<script src="{% static 'js/register.js' %}"></script>
+  </body>
 </html>
