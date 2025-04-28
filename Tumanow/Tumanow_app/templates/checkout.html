@@ -15,7 +15,7 @@
 <main>
     <div class="checkout-container">
         <h2>Checkout for: {{ food.name }}</h2>
-        <form method="POST" action="{% url 'process_checkout' %}">
+        <form method="POST" action="{% url 'process_checkout' id=food.id %}">
             {% csrf_token %}
             <img src="{{ food.image.url }}" />
             <label for="name">Name: {{ request.user.customer.name }}</label>

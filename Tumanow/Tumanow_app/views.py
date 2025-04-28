@@ -4,7 +4,9 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import login, authenticate
 from .utils import clean_input, validate_signup_data
+from django_daraja.mpesa.core import MpesaClient
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 
 
 # Create your views here.
@@ -99,5 +101,22 @@ def restaurant(request, id):
     }
     return render(request, 'restaurant.html', context)
 
-def process_checkout(request):
-    pass
+def process_checkout(request, id):
+    food = get_object_or_404(Product, pk=id)
+    if request.method == 'POST':
+        amount = food.price
+        phoneNumber = request.POST.get('phone')
+        if not phoneNumber or not int(phoneNumber):
+            return HttpResponse('invalid phone number')
+        if not amount or not int(amount):
+            return HttpResponse('invalid price')
+        cl = MpesaClient()
+        phone_number = int(phoneNumber)
+        amount = int(amount)
+        account_reference = 'Tumanow'
+        transaction_desc = 'paying for food'
+        callback_url = 'https://api.darajambili.com/express-payment'
+        response = cl.stk_push(str(phone_number), amount, account_reference, transaction_desc, callback_url)
+        return HttpResponse(response)
+    else:
+        return render(request, 'checkout.html', {'food':food})

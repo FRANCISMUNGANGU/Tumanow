@@ -16,10 +16,10 @@
     <div class="auth-card">
         <img src="/media/logo.png" alt="TumaNow Logo" class="auth-logo">
         <h1>Login</h1>
-        <form>
+        <form  action="{% url 'login' %}" method="POST">
             {% csrf_token %}
-            <input type="text" placeholder="Username" required>
-            <input type="password" placeholder="Password" required>
+            <input type="text" placeholder="username" required>
+            <input type="password" placeholder="password" required>
             <button type="submit">Login</button>
         </form>
         <p>Don't have an account? <a href="{% url 'register' %}">Sign Up</a></p>
