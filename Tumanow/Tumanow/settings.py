@@ -26,8 +26,11 @@ SECRET_KEY = 'django-insecure-f9w(693(gtjmlz-59ct2*5q72wv%(=njnl7%s+mn6(=qm#j%1i
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1','https://3552-102-0-12-54.ngrok-free.app', '3552-102-0-12-54.ngrok-free.app']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://3552-102-0-12-54.ngrok-free.app',
+]
 
 # Application definition
 
@@ -39,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Tumanow_app',
-    'django_daraja'
+    'django_daraja',
 ]
 
 MIDDLEWARE = [
@@ -130,9 +133,18 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MPESA_ENVIRONMENT = 'sandbox'
-MPESA_CONSUMER_KEY = '2JK8E8npdlDRpoLN45j2PY6JfmVnrvB1WCxlGgNbNQtRiGqS'
-MPESA_CONSUMER_SECRET = 'i3sGnGCClkEogVfsnlJpvSH8RPwRmSgU3xojp4Nxq0pbU6MzLqXbZDJ0nSyy7HfG'
+MPESA_CONSUMER_KEY = 'BPbBvAMqBBjxYjLVepU4XOAIfTeTJrTK5AslQrhiAQcuWTUb'
+MPESA_CONSUMER_SECRET = 'Rrtnp9QAKzkg1ryMS4QlFvh3Ay5j5DUsgJ6KLgpjqErrkegVqayeJiZlsGtef0t7'
 MPESA_EXPRESS_SHORTCODE = '174379'
-MPESA_SHORTCODE_TYPE = 'paybill'
+MPESA_SHORTCODE_TYPE = 'paybill' 
 MPESA_PASSKEY = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
 MPESA_INITIATOR_USERNAME = 'TumaNow'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'mungangufrancis8@gmail.com'
+EMAIL_HOST_PASSWORD = 'hljz fysy nwhf lqbq'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import CASCADE
+from django.db.models import CASCADE, SET_NULL
 from django.contrib.auth.models import User
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -59,3 +59,49 @@ class Customer(models.Model):
 
     def __str__(self):
         return self.username
+    
+class Deliverer(models.Model):
+    CHOICE = [
+        ('A', 'Available'),
+        ('OO', 'On Order')
+    ]
+    user = models.OneToOneField(User, on_delete=CASCADE)
+    restaurant = models.ForeignKey(Restaurant, on_delete=CASCADE)
+    name = models.CharField(max_length=100)
+    phone_number = PhoneNumberField()
+    status = models.CharField(max_length=100, choices=CHOICE)
+
+    def __str__(self):
+        return self.get_status_display()
+
+class Order(models.Model):
+    CHOICES = [
+        ('R', 'Received'),
+        ('D', 'Dispatched'),
+        ('A', 'Arrived')
+    ]
+    customer = models.ForeignKey(Customer, on_delete=CASCADE)
+    restaurant = models.ForeignKey(Restaurant, on_delete=CASCADE)
+    vendor = models.ForeignKey(Vendor, on_delete=CASCADE)
+    product = models.ForeignKey(Product, on_delete=CASCADE)
+    deliverer = models.ForeignKey(Deliverer, on_delete=SET_NULL, null=True, blank=True)
+    status = models.CharField(max_length=100, choices=CHOICES)
+
+    def __str__(self):
+        return f"Order for: {self.customer.name}"
+    
+class STKPushTransaction(models.Model):
+    phone_number = models.CharField(max_length=20)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    description = models.CharField(max_length=255)
+    checkout_request_id = models.CharField(max_length=100)
+    merchant_request_id = models.CharField(max_length=100)
+    mpesa_receipt_number = models.CharField(max_length=100, null=True, blank=True)
+    transaction_date = models.DateTimeField(null=True, blank=True)
+    result_code = models.IntegerField(null=True, blank=True)
+    result_desc = models.TextField()
+    status = models.CharField(max_length=20, choices=[('success', 'Success'), ('failed', 'Failed')])
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.phone_number

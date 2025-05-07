@@ -1,11 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Processing Payment</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
+    <div id="loader">Processing payment...</div>
+    <div id="success" style="display: none;">Payment successful! Redirecting...</div>
+    <div id="fail" style="display: none;">Payment failed. Please try again.</div>
     
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // function checkStatus(checkoutId) {
+        //     $.ajax({
+        //         url: `/check-payment-status/?checkout_id=${checkoutId}`,
+        //         method: 'GET',
+        //         success: function(data) {
+        //             if (data.status === 'success') {
+        //                 $('#loader').hide();
+        //                 $('#success').show();
+        //                 setTimeout(function() {
+        //                     window.location.href = '/';  // or redirect to a "Thank You" page
+        //                 }, 2000);
+        //             } else if (data.status === 'failed') {
+        //                 $('#loader').hide();
+        //                 $('#fail').show();
+        //             } else {
+        //                 // Still pending, keep polling
+        //                 setTimeout(function() {
+        //                     checkStatus(checkoutId);
+        //                 }, 15000);
+        //             }
+        //         },
+        //         error: function() {
+        //             // Retry after a short delay if the request fails
+        //             setTimeout(function() {
+        //                 checkStatus(checkoutId);
+        //             }, 15000);
+        //         }
+        //     });
+        // }
+    
+        // // Kick off polling when page loads
+        // $(document).ready(function() {
+        //     const checkoutId = "{{ checkout_request_id }}";  // Passed from view context
+        //     checkStatus(checkoutId);
+        // });
+    </script>
+        
 </body>
 </html>

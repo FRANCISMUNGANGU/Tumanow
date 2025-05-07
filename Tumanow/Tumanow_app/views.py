@@ -1,9 +1,18 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth import authenticate, login as auth_login
-from .models import Restaurant, Product
+from django.contrib.auth import authenticate, login as auth_login 
+from django.contrib.auth import logout as auth_logout
+from .models import Restaurant, Product, STKPushTransaction, Order, Customer, Vendor
+from .utils import normalize_phone, get_access_token
+import requests
+import json
 from .forms import CustomUserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse  # Import HttpResponse
+from django.core.mail import send_mail  # Import send_mail
+from django.conf import settings  # Import settings
+from django.views.decorators.csrf import csrf_exempt  # Import csrf_exempt
+from datetime import datetime  # Import datetime
+import base64  # Import base64
 from django_daraja.mpesa.core import MpesaClient  # Import MpesaClient
 
 # Create your views here.
@@ -15,13 +24,86 @@ def profile(request):
     customer = request.user.customer
     return render(request, 'home.html', {'customer': customer})
 
+@login_required(login_url="login")
+def profile_page(request):
+    customer = request.user.customer
+    orders = Order.objects.filter(customer=customer)
+    return render(
+        request, 'profile.html',
+                   {'customer': customer,
+                    'orders': orders
+                    }
+    )
+
+@login_required(login_url='login')
+def place_order(request, id):
+    food = get_object_or_404(Product, pk=id)
+    customer = request.user.customer
+    vendor = food.vendor
+    restaurant = food.restaurant
+    order = Order.objects.create(
+        customer = customer,
+        restaurant = restaurant,
+        vendor = vendor,
+        product = food,
+        status = 'Received'
+    )
+    subject= f"Order Confirmation for {food.name}"
+    message_customer = f"An order has been placed for {food.name}.\n\nOrder ID: {order.id}"
+    message_vendor = f"An order has been place for {food.name} by {customer.name}.\n Customer number: {customer.phone_number}\n Customer Email: {customer.email} \n Order Id: {order.id}"
+    message_restaurant = f"An order has been place for {food.name} by {customer.name}.\n Customer number: {customer.phone_number}\n Customer Email: {customer.email} \n Vendor Name: {vendor.vendor_name} \n Vendor Email: {vendor.user.email} \n Vendor Phone Number: {vendor.phone_number} \n Order Id: {order.id}"
+    from_email = 'mungangufrancis8@gmail.com'
+
+    recipients = [
+        customer.email,
+        vendor.user.email,
+        restaurant.email
+    ]
+
+    send_mail(
+        subject=subject,
+        message=message_customer,
+        from_email=from_email,
+        recipient_list=[customer.email],
+        fail_silently=False,
+    )
+
+    # Message to vendor
+    send_mail(
+        subject='New Order Received',
+        message=message_vendor,
+        from_email=from_email,
+        recipient_list=[vendor.user.email],
+        fail_silently=False,
+    )
+
+    # Message to restaurant
+    send_mail(
+        subject='New Order for Your Restaurant',
+        message=message_restaurant,
+        from_email=from_email,
+        recipient_list=[restaurant.email],
+        fail_silently=False,
+    )
+    return redirect('order_success')
+
+@login_required(login_url='login')
+def orders(request):
+    customer = request.user.customer
+    orders = Order.objects.filter(customer=customer)
+    return render(request, 'orders.html', {'orders':orders})
+
+def logout(request):
+    auth_logout(request)
+    return redirect('login')
 
 def register(request):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return redirect('login')
+        
     else:
         form = CustomUserCreationForm()
     return render(request, 'register.html', {'form': form})
@@ -66,44 +148,126 @@ def restaurant(request, id):
 
 def process_checkout(request, id):
     food = get_object_or_404(Product, pk=id)
+
     if request.method == 'POST':
         amount = food.price
-        phone_number = request.POST.get('phone')
+        raw_phone = request.POST.get('phone', '').strip()
+        phone_number = normalize_phone(raw_phone)
 
-        if not phone_number or not phone_number.isdigit():
-            return HttpResponse('invalid phone number')
+        if not phone_number:
+            return HttpResponse('Invalid phone number format. Use 07XXXXXXXX or +2547XXXXXXXX.')
 
-        cl = MpesaClient()
-        account_reference = 'Tumanow'
-        transaction_desc = 'paying for food'
-        callback_url = 'https://127.0.0.1:8000/mpesa-callback/'  # You need to create this endpoint!
+        # Get access token
+        try:
+            access_token = get_access_token()
+        except Exception as e:
+            return HttpResponse(f"Failed to get access token: {e}")
 
-        # Initiate STK Push
-        response = cl.stk_push(str(phone_number), amount, account_reference, transaction_desc, callback_url)
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        passkey = settings.MPESA_PASSKEY
+        shortcode = settings.MPESA_EXPRESS_SHORTCODE
 
-        # You need to save some transaction data like CheckoutRequestID somewhere!
-        checkout_request_id = response.json()
-        print(checkout_request_id) # depends how your MpesaClient returns it
+        data_to_encode = shortcode + passkey + timestamp
+        encoded_password = base64.b64encode(data_to_encode.encode()).decode()
 
-        # Store it in session or database to track later
-        request.session['checkout_request_id'] = checkout_request_id
+        payload = {
+            "BusinessShortCode": shortcode,
+            "Password": encoded_password,
+            "Timestamp": timestamp,
+            "TransactionType": "CustomerPayhttp://127.0.0.1:8000/BillOnline",
+            "Amount": amount,
+            "PartyA": phone_number,
+            "PartyB": shortcode,
+            "PhoneNumber": phone_number,
+            "CallBackURL": "https://3552-102-0-12-54.ngrok-free.app/mpesa-callback/",
+            "AccountReference": "Tumanow",
+            "TransactionDesc": "Paying for food"
+        }
 
-        return render(request, 'processing.html', {'food': food})
-    else:
-        return render(request, 'checkout.html', {'food': food})
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json"
+        }
 
-    
+        response = requests.post(
+            "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
+            json=payload,
+            headers=headers
+        )
+
+        res_data = response.json()
+
+        if res_data.get('ResponseCode') == '0':
+            STKPushTransaction.objects.create(
+                phone_number=phone_number,
+                amount=amount,
+                description="Paying for food",
+                checkout_request_id=res_data.get('CheckoutRequestID'),
+                merchant_request_id=res_data.get('MerchantRequestID'),
+                status='pending'
+            )
+            return render(request, 'processing.html', {'food': food, 'checkout_request_id': res_data.get('CheckoutRequestID')})
+        else:
+            return HttpResponse(f"Failed to initiate payment: {res_data.get('errorMessage', 'Unknown error')}")
+
+    return render(request, 'checkout.html', {'food': food})
+
+
+@csrf_exempt
+def mpesa_callback(request):
+    if request.method == 'POST':
+        try:
+            # Log the callback for debugging (Optional)
+            with open("callback_debug.log", "a") as f:
+                f.write(request.body.decode() + "\n\n")
+
+            # Parse the callback data
+            data = json.loads(request.body)
+            callback = data['Body']['stkCallback']
+            result_code = callback['ResultCode']
+            result_desc = callback.get('ResultDesc', '')
+            checkout_id = callback.get('CheckoutRequestID')
+
+            # Retrieve transaction from DB using CheckoutRequestID
+            txn = STKPushTransaction.objects.filter(checkout_request_id=checkout_id).first()
+            if not txn:
+                return JsonResponse({'error': 'Transaction not found'}, status=404)
+
+            # Update transaction status based on result code
+            if result_code == 0:
+                metadata = {item['Name']: item.get('Value') for item in callback['CallbackMetadata']['Item']}
+                txn.mpesa_receipt_number = metadata.get('MpesaReceiptNumber')
+                txn.transaction_date = datetime.strptime(str(metadata.get('TransactionDate')), "%Y%m%d%H%M%S")
+                txn.status = 'success'
+            else:
+                txn.status = 'failed'
+
+            txn.result_code = result_code
+            txn.result_desc = result_desc
+            txn.save()
+
+            return JsonResponse({'status': 'ok'})
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse({'message': 'Callback expects POST'}, status=405)
+
+
 def check_payment_status(request):
-    checkout_request_id = request.session.get('checkout_request_id')
+    checkout_id = request.GET.get('checkout_id')
+    if not checkout_id:
+        return JsonResponse({'status': 'missing_checkout_id'})
 
-    if not checkout_request_id:
-        return JsonResponse({'status': 'error', 'message': 'No transaction found'})
+    txn = STKPushTransaction.objects.filter(checkout_request_id=checkout_id).first()
+    if not txn:
+        return JsonResponse({'status': 'not_found'})
 
-    cl = MpesaClient()
-    result = cl.query_transaction_status(checkout_request_id)
-
-    # You'll need to adjust according to M-Pesa response format
-    if result.get('ResultCode') == 0:
-        return JsonResponse({'status': 'success'})
-    else:
-        return JsonResponse({'status': 'pending'})
+    return JsonResponse({
+        'status': txn.status,
+        'amount': txn.amount,
+        'receipt': txn.mpesa_receipt_number,
+        'phone': txn.phone_number,
+        'description': txn.description,
+        'timestamp': txn.transaction_date.strftime("%Y-%m-%d %H:%M:%S") if txn.transaction_date else None
+    })

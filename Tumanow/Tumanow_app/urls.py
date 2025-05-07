@@ -12,4 +12,10 @@ urlpatterns = [
     path('product/<int:id>', views.product, name='product'),
     path('restaurant/<int:id>/', views.restaurant, name='restaurant'),
     path('process_checkout/<int:id>/', views.process_checkout, name='process_checkout'),
+    path('check-payment-status/', views.check_payment_status, name='check_payment_status'),
+    path('mpesa-callback/', views.mpesa_callback, name='mpesa_callback'),
+    path('place_order/<int:id>', views.place_order, name='place_order'),
+    path('profile-url/', views.profile_page, name='profile_page'),
+    path('logout/', views.logout, name='logout'),
+    path('orders/', views.orders, name='order_success')
 ]

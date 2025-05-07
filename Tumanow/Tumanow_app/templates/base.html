@@ -8,6 +8,7 @@
 
     {% endblock %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     {% block static_inclusions %}
 
     {% endblock %}
@@ -25,7 +26,7 @@
         <nav>
             {% if request.user.is_authenticated %}
             <div class="profile-menu">
-                <a href="{% url 'profile' %}">
+                <a href="{% url 'profile_page' %}">
                     <img src="{{ request.user.customer.profile_pic.url }}" alt="Profile" class="profile-icon">
                     <p>{{ request.user.customer.username }}</p>
                 </a>

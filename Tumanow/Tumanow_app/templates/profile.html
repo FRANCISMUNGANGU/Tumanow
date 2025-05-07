@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile Page</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .profile-body {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 600px;
+            margin: 2rem auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .profile-body img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+        }
+
+        .profile-body h1 {
+            font-size: 1.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .profile-body p,
+        .profile-body p1 {
+            display: block;
+            font-size: 1rem;
+            margin: 0.3rem 0;
+            color: #666;
+        }
+
+        section {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 600px;
+            margin: 2rem auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .devilery-status h1 {
+            text-align: center;
+        }
+
+        a {
+            display: inline-block;
+            text-align: center;
+            margin: 1rem auto;
+            color: white;
+            background-color: #007bff;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        a:hover {
+            background-color: #0056b3;
+        }
+
+        a + a {
+            margin-left: 1rem;
+        }
+
+        .order-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        font-family: Arial, sans-serif;
+    }
+
+    .order-table th,
+    .order-table td {
+        border: 1px solid #ddd;
+        padding: 12px 16px;
+        text-align: left;
+    }
+
+    .order-table th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+    }
+
+    .order-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .order-table tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .order-section {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .order-section h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+        @media (max-width: 640px) {
+            section, .profile-body {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+
+            input[type="text"],
+            input[type="email"],
+            input[type="password"] {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<section class="profile-body">
+    <img src="{{ customer.profile_pic.url }}" alt="Profile Picture">
+    <h1>Username: {{ customer.username }}</h1>
+    <p1>Name: {{ customer.name }}</p1>
+    <p>Email: {{ customer.email }}</p>
+</section>
+
+<section>
+    <h1>Edit Profile</h1>
+    <form action="">
+        {% csrf_token %}
+        <input type="text" name="name" placeholder="Name" required>
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+    </form>
+</section>
+
+<section class="order-section">
+    <h2>Your Orders</h2>
+    <table class="order-table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Product</th>
+                <th>Restaurant</th>
+                <th>Vendor</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.product }}</td>
+                <td>{{ order.restaurant }}</td>
+                <td>{{ order.vendor }}</td>
+                <td>{{ order.get_status_display }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center;">No orders found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<div style="text-align: center; margin-bottom: 2rem;">
+    <a href="{% url 'home' %}">Home</a>
+    <a href="{% url 'logout' %}">Log out</a>
+</div>
+
+</body>
+</html>

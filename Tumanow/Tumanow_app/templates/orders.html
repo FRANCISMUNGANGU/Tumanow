@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block static_inclusions %}
+    <link rel="stylesheet" href="{% static 'orders.css' %}">
+{% endblock %}
+
+
+{% block main %}
+
+<main>
+    {% for order in orders %}
+    <div class="order-card">
+        <h1>Order id: {{ order.id }}</h1>
+        <p>Product ordered: {{ order.product }}</p>
+        <p>Restaurant: {{ order.restaurant }}</p>
+        <p>Vendor: {{ order.vendor }}</p>
+        <p>Status: {{ order.get_status_display  }}</p>
+        
+    </div>
+    {% endfor %}
+</main>
+
+{% endblock %}

@@ -22,12 +22,13 @@
         
         <div class="vendors-grid">
             {% for menu in menus %}
-             <a href="{% url 'checkout' id=menu.id %}" class="vendor-card">
+            <div class="vendor-card">
                 <img src="{{ menu.image.url }}" alt="Wajeff">
                 <h3>{{ menu.name }}</h3>
                 <p>Vendor: {{ menu.vendor }}</p>
                 <p>Ksh: {{ menu.price }}</p>
-            </a>
+                <a href="{% url 'place_order' id=menu.id %}">Place order</a>
+            </div>
             {% endfor %}
            
         </div>
