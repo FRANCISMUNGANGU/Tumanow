@@ -24,6 +24,7 @@
                 <p>Vendor: {{ product.vendor }}</p>
                 <p>Ksh: {{ product.price }}</p>
                 <a href="{% url 'place_order' id=product.id %}">Place order</a>
+                <a href="{% url 'add_to_cart' id=product.id %}">Add to cart</a>
              </div>
             {% endfor %}
         </div>

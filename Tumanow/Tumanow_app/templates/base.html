@@ -26,6 +26,7 @@
         <nav>
             {% if request.user.is_authenticated %}
             <div class="profile-menu">
+                <a href="{% url 'view_cart' %}"><i class="fa-solid fa-cart-shopping"></i></a>
                 <a href="{% url 'profile_page' %}">
                     <img src="{{ request.user.customer.profile_pic.url }}" alt="Profile" class="profile-icon">
                     <p>{{ request.user.customer.username }}</p>

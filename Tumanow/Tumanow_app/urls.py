@@ -17,5 +17,8 @@ urlpatterns = [
     path('place_order/<int:id>', views.place_order, name='place_order'),
     path('profile-url/', views.profile_page, name='profile_page'),
     path('logout/', views.logout, name='logout'),
-    path('orders/', views.orders, name='order_success')
+    path('orders/', views.orders, name='order_success'),
+    path('cart/add/<int:id>/', views.add_to_cart, name='add_to_cart'),
+    path('cart/', views.view_cart, name='view_cart'),
+    path('cart-checkout/', views.cart_checkout, name='cart-checkout'),
 ]

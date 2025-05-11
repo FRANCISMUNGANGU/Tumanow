@@ -4,6 +4,17 @@ from django.core.mail import send_mail
 from django.utils.html import format_html
 from django.conf import settings
 from django import forms
+from django.contrib import messages
+from django.shortcuts import render
+from datetime import datetime
+from django.http import HttpResponseRedirect
+import base64
+from django.urls import path, reverse
+import requests
+from .utils import get_access_token, normalize_phone  # Ensure this import points to the correct module
+from django.shortcuts import redirect
+from django.template.response import TemplateResponse
+
 # Register your models here.
 
 
@@ -14,16 +25,38 @@ admin.site.register(STKPushTransaction)
 
 @admin.register(Order)
 class AdminOrder(admin.ModelAdmin):
-    list_display = ['status','customer', 'restaurant', 'vendor', 'deliverer']
+    list_display = ['status','customer', 'restaurant', 'vendor', 'deliverer', 'stkpush_action']
+
+    def get_changelist_instance(self, request):
+        self._request = request
+        return super().get_changelist_instance(request)
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                '<int:order_id>/stkpush/',
+                self.admin_site.admin_view(self.initiate_stkpush),
+                name='initiate-stkpush',
+            ),
+        ]
+        return custom_urls + urls
+
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
+        
         if request.user.is_superuser:
             return qs
-        elif hasattr(request.user, 'vendor'):
+        
+        # Filter by vendor if the user is a vendor
+        if hasattr(request.user, 'vendor'):
             return qs.filter(vendor=request.user.vendor)
-        elif hasattr(request.user, 'deliverer'):
+        
+        # Filter by deliverer if the user is a deliverer
+        if hasattr(request.user, 'deliverer'):
             return qs.filter(deliverer=request.user.deliverer)
+        
         return qs.none()
 
     def get_readonly_fields(self, request, obj=None):
@@ -101,6 +134,82 @@ class AdminOrder(admin.ModelAdmin):
 
         # Save the object
         super().save_model(request, obj, form, change)
+
+
+    def initiate_stkpush(self, request, order_id):
+        from django.shortcuts import get_object_or_404
+        from django.http import HttpResponseRedirect
+        order = get_object_or_404(Order, pk=order_id)
+
+        if not hasattr(request.user, 'deliverer') or order.deliverer.user != request.user:
+            self.message_user(request, "You do not have permission to initiate payment for this order.", level=messages.ERROR)
+            return redirect('..')
+        if order.status != 'A':
+            self.message_user(request, "Order must be marked as 'received' before initiating payment.", level=messages.WARNING)
+            return redirect('..')
+
+        try:
+            # Normalize phone and send STK push
+            phone = str(order.customer.phone_number)
+            amount = order.product.price  
+            description = f"Payment for Order #{order.id}"
+
+            access_token = get_access_token()
+            timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+            passkey = settings.MPESA_PASSKEY
+            shortcode = settings.MPESA_EXPRESS_SHORTCODE
+            data_to_encode = shortcode + passkey + timestamp
+            encoded_password = base64.b64encode(data_to_encode.encode()).decode()
+
+            payload = {
+                "BusinessShortCode": shortcode,
+                "Password": encoded_password,
+                "Timestamp": timestamp,
+                "TransactionType": "CustomerPayBillOnline",
+                "Amount": amount,
+                "PartyA": phone,
+                "PartyB": shortcode,
+                "PhoneNumber": phone,
+                "CallBackURL": "https://your-ngrok-url.ngrok-free.app/mpesa-callback/",
+                "AccountReference": "Tumanow",
+                "TransactionDesc": description
+            }
+
+            headers = {
+                "Authorization": f"Bearer {access_token}",
+                "Content-Type": "application/json"
+            }
+
+            response = requests.post(
+                "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
+                json=payload,
+                headers=headers
+            )
+
+            if response.status_code == 200:
+                self.message_user(request, "STK Push initiated successfully.", level=messages.SUCCESS)
+            else:
+                self.message_user(request, f"Failed to initiate STK Push: {response.text}", level=messages.ERROR)
+
+        except Exception as e:
+            self.message_user(request, f"Error: {str(e)}", level=messages.ERROR)
+
+        messages.success(request, f"STK Push initiated for order {order.pk}.")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/admin/'))
+    
+    def stkpush_action(self, obj):
+        request = getattr(self, '_request', None)
+        if not request:
+            return '-'
+
+        user = request.user
+        is_deliverer = hasattr(user, 'deliverer')
+        is_assigned = obj.deliverer and obj.deliverer.user == user
+        if is_deliverer and is_assigned and obj.status == 'A':
+            url = reverse('admin:initiate-stkpush', args=[obj.pk])
+            return format_html('<a class="button" href="{}">Send STK Push</a>', url)
+        return '-'
+    stkpush_action.short_description = "STK Push"
 
 class DelivererForm(forms.ModelForm):
     class Meta:
@@ -218,4 +327,5 @@ class AdminProduct(admin.ModelAdmin):
 
     image_display.allow_tags = True
     image_display.short_description = "Image" 
+
 

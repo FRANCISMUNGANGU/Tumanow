@@ -7,25 +7,36 @@ import requests
 import json
 from .forms import CustomUserCreationForm
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse  # Import HttpResponse
-from django.core.mail import send_mail  # Import send_mail
-from django.conf import settings  # Import settings
-from django.views.decorators.csrf import csrf_exempt  # Import csrf_exempt
-from datetime import datetime  # Import datetime
-import base64  # Import base64
-from django_daraja.mpesa.core import MpesaClient  # Import MpesaClient
+from django.http import HttpResponse, JsonResponse  
+from django.contrib import messages  
+from django.core.mail import send_mail  
+from django.conf import settings 
+from django.views.decorators.csrf import csrf_exempt  
+from datetime import datetime 
+import base64  
 
 # Create your views here.
+
+
 def home(request):
+    """
+    This view is used to render the home page
+    """
     return render(request, "index.html")
 
 @login_required(login_url="login")
 def profile(request):
+    """
+    This view is used to render the logged user and profile pic
+    """
     customer = request.user.customer
     return render(request, 'home.html', {'customer': customer})
 
 @login_required(login_url="login")
 def profile_page(request):
+    """
+    This view is used to render the profile that has customer order history
+    """
     customer = request.user.customer
     orders = Order.objects.filter(customer=customer)
     return render(
@@ -37,6 +48,13 @@ def profile_page(request):
 
 @login_required(login_url='login')
 def place_order(request, id):
+    """
+    This view is used to place an order and send an email if the order placement is successful
+    to:
+        1. Restaurant
+        2. Vendor
+        3. Customer
+    """
     food = get_object_or_404(Product, pk=id)
     customer = request.user.customer
     vendor = food.vendor
@@ -89,15 +107,24 @@ def place_order(request, id):
 
 @login_required(login_url='login')
 def orders(request):
+    """
+    This view is used to render the orders page
+    """
     customer = request.user.customer
     orders = Order.objects.filter(customer=customer)
     return render(request, 'orders.html', {'orders':orders})
 
 def logout(request):
+    """
+    This view is used to log a user out
+    """
     auth_logout(request)
     return redirect('login')
 
 def register(request):
+    """
+    This view is used to register a customer
+    """
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
@@ -109,35 +136,77 @@ def register(request):
     return render(request, 'register.html', {'form': form})
 
 def login_view(request):
+    """
+    This view is used to login a customer
+    """
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
         user = authenticate(request, username=username, password=password)
         if user is not None:
             auth_login(request, user)
             return redirect('home')
         else:
-            return render(request, 'login.html', {'error': 'Invalid username or password'})
+            messages.error(request, 'Invalid username or password')
+            return render(request, 'login.html')
     else:
         return render(request, 'login.html')
+  
 
 def menu(request):
+    """
+    This view is used to render the menu page of a restaurant
+    """
     products = Product.objects.all()
     return render(request, 'menu.html', {'products': products})
 
 @login_required(login_url="login")
 def checkout(request, id):
+    """
+    This view is used to render the checkout page
+    """
     food = get_object_or_404(Product, pk=id)
     return render(request, 'checkout.html', {'food':food})
 
+@login_required(login_url="login")
+def cart_checkout(request):
+    """
+    This view is used to handle the cart checkout
+    """
+    cart = request.session.get('cart', {})
+    cart_items = []
+    total_price = 0
+    for product_id, quantity in cart.items():
+        product = Product.objects.get(id=product_id)
+        cart_items.append({
+            'product': product,
+            'quantity': quantity,
+            'subtotal': product.price * quantity
+        })
+        total_price += product.price * quantity
+
+    # Here, you'd typically handle the payment and order confirmation
+    return render(request, 'cart_checkout.html', {'cart_items': cart_items, 'total_price': total_price})
+
+
 def restaurants(request):
+    """
+    This view is used to render the restaurants display page
+    """
     restaurants = Restaurant.objects.all()
     return render(request, 'restaurants.html', {'restaurants': restaurants})
 
 def product(request, id):
+    """
+    This view is used to display the products page
+    """
     return render(request, 'product.html')
 
 def restaurant(request, id):
+    """
+    This view is used to render the individual restaurant page
+    """
     restaurant = get_object_or_404(Restaurant, pk=id)
     menus = restaurant.menu_items.all()
     context = {
@@ -147,6 +216,9 @@ def restaurant(request, id):
     return render(request, 'restaurant.html', context)
 
 def process_checkout(request, id):
+    """
+    This view is used to process mpesa payments
+    """
     food = get_object_or_404(Product, pk=id)
 
     if request.method == 'POST':
@@ -174,12 +246,12 @@ def process_checkout(request, id):
             "BusinessShortCode": shortcode,
             "Password": encoded_password,
             "Timestamp": timestamp,
-            "TransactionType": "CustomerPayhttp://127.0.0.1:8000/BillOnline",
+            "TransactionType": "CustomerPayBillOnline",
             "Amount": amount,
             "PartyA": phone_number,
             "PartyB": shortcode,
             "PhoneNumber": phone_number,
-            "CallBackURL": "https://3552-102-0-12-54.ngrok-free.app/mpesa-callback/",
+            "CallBackURL": "https://3552-102-0-12-54.ngrok-free.app/mpesa-callback/", # can only be used in production
             "AccountReference": "Tumanow",
             "TransactionDesc": "Paying for food"
         }
@@ -215,12 +287,12 @@ def process_checkout(request, id):
 
 @csrf_exempt
 def mpesa_callback(request):
+    """
+    This view is the call back url for mpesa(usable only in production)
+    """
     if request.method == 'POST':
         try:
-            # Log the callback for debugging (Optional)
-            with open("callback_debug.log", "a") as f:
-                f.write(request.body.decode() + "\n\n")
-
+        
             # Parse the callback data
             data = json.loads(request.body)
             callback = data['Body']['stkCallback']
@@ -255,6 +327,9 @@ def mpesa_callback(request):
 
 
 def check_payment_status(request):
+    """
+    This view is used to check payment status(usable only in production)
+    """
     checkout_id = request.GET.get('checkout_id')
     if not checkout_id:
         return JsonResponse({'status': 'missing_checkout_id'})
@@ -271,3 +346,35 @@ def check_payment_status(request):
         'description': txn.description,
         'timestamp': txn.transaction_date.strftime("%Y-%m-%d %H:%M:%S") if txn.transaction_date else None
     })
+
+
+@login_required(login_url='login')
+def add_to_cart(request, id):
+    """
+    This view is used to add a food to cart
+    """
+    product = get_object_or_404(Product, id=id)
+    cart = request.session.get('cart', {})
+    cart[str(product.id)] = cart.get(str(product.id), 0) + 1
+    request.session['cart'] = cart
+    return redirect('view_cart') 
+
+
+@login_required(login_url='login')
+def view_cart(request):
+    """
+    This view is used to view items in a cart
+    """
+    cart = request.session.get('cart', {})
+    cart_items = []
+    total_price = 0
+    for product_id, quantity in cart.items():
+        product = Product.objects.get(id=product_id)
+        cart_items.append({
+            'product': product,
+            'quantity': quantity,
+            'subtotal': product.price * quantity
+        })
+        total_price += product.price * quantity
+
+    return render(request, 'cart.html', {'cart_items': cart_items, 'total_price': total_price})

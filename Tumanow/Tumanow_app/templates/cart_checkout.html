@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block title %}
+<title>Checkout - TumaNow</title>
+{% endblock %}
+
+{% block static_inclusions %}
+<link rel="stylesheet" href="{% static 'styles.css' %}" />
+{% endblock %}
+
+{% block main %}
+<main>
+    <section class="checkout-container">
+        <h2>Checkout</h2>
+        <div class="checkout-items">
+            {% for item in cart_items %}
+                    <div class="checkout-item">
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                        <div class="checkout-item-details">
+                            <h3>{{ item.product.name }}</h3>
+                            <p>Price: Ksh {{ item.product.price }}</p>
+                            <p>Quantity: {{ item.quantity }}</p>
+                            <p>Subtotal: Ksh {{ item.subtotal }}</p>
+                        </div>
+                    </div>
+            {% endfor %}
+        </div>
+
+        <div class="checkout-summary">
+            <h3>Total Price: Ksh {{ total_price }}</h3>
+            <form method="POST" action="{% url 'cart-checkout' %}" class="checkout-form">
+                {% csrf_token %}
+                <input type="text" name="name" placeholder="Your Full Name" required>
+                <input type="email" name="email" placeholder="Your Email Address" required>
+                <input type="submit" value="Confirm Order">
+            </form>
+        </div>
+    </section>
+</main>
+{% endblock %}
